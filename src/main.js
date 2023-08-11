@@ -115,14 +115,6 @@ const manageProducts = async () => {
   await productManager.deleteProduct(1);
   await productManager.getProducts();
 };
-
-manageProducts();
-
-/* productManager.getProducts() */
-
-/* actualizamos el campo title de producto de id = 2 */
-/* productManager.uptadeProduct(2,'title','cereal')
-
-productManager.getProductById(2)
-
-productManager.deleteProduct(4) */
+/* 
+manageProducts(); */
+console.log("hola");
