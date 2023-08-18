@@ -1,5 +1,8 @@
 import { promises as fs } from "fs";
 import express from "express";
+import ProductManager from "./main";
+
+const ProductManagerServer = new ProductManager();
 
 const products = async () => {
   try {
@@ -13,7 +16,6 @@ const products = async () => {
   }
 };
 
-const productos = await products();
 /* console.log(productos); */
 
 const PORT = 4000;
@@ -25,8 +27,9 @@ app.get("/", (req, res) => {
   res.send("Hola, buenos dias");
 });
 
-app.get("/products", (req, res) => {
+app.get("/products", async (req, res) => {
   const { limit } = req.query;
+  const productos = await ProductManagerServer.getProducts();
   console.log(limit);
   if (limit) {
     const filterProducts = productos.slice(0, parseInt(limit));
@@ -39,9 +42,10 @@ app.get("/products", (req, res) => {
   }
 });
 
-app.get("/products/:id", (req, res) => {
+app.get("/products/:id", async (req, res) => {
   const { id } = req.params;
-  const prod = prods.find((prod) => prod.id === parseInt(id));
+  const productos = await ProductManagerServer.getProductById(id);
+  const prod = productos.find((prod) => prod.id === parseInt(id));
   prod
     ? res.status(200).send(prod)
     : res.status(404).send("producto no encontrado");

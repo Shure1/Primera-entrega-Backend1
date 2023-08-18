@@ -2,9 +2,9 @@
   "type": "module",
   "name": "desafio-2",
   "version": "1.0.0",
-  "main": "main.js",
+  "main": "app.js",
   "scripts": {
-    "dev": "nodemon ./src app.js"
+    "dev": "nodemon main.js"
   },
   "keywords": [],
   "author": "",
