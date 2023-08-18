@@ -98,13 +98,121 @@ class Product {
   }
 }
 
+class CarritoManager {
+  constructor() {
+    this.path = "./carrito.json";
+    this.pathProducts = "./productos.json";
+  }
+
+  async AddCarrito(carritoNew) {
+    const carritoJson = JSON.parse(await fs.readFile(this.path, "utf-8"));
+    const carritoFilter = carritoJson.find(
+      (carrito) => carrito.id === carritoNew.id
+    );
+
+    if (carritoFilter) {
+      console.log("carrito ya ingresado");
+    } else {
+      carritoJson.push(carritoNew);
+
+      /* pasamos de objeto a texto plano (stringify) */
+      await fs.writeFile(this.path, JSON.stringify(carritoJson));
+    }
+  }
+
+  async getCarrito(id) {
+    const carritoJson = JSON.parse(await fs.readFile(this.path, "utf-8"));
+    const carr = carritoJson.find((carr) => carr.id === id);
+
+    if (carr) {
+      console.log(carr);
+    } else {
+      console.log("Producto no encontrado");
+    }
+  }
+
+  async addProduct(idProduct, idCarrito) {
+    const carritoJson = JSON.parse(await fs.readFile(this.path, "utf-8"));
+    const posicionCarrito = carritoJson.findIndex(
+      (carrito) => carrito.id === idCarrito
+    );
+
+    /* buscamos la posicion del carro */
+    if (posicionCarrito !== -1) {
+      const ProdJson = JSON.parse(
+        await fs.readFile(this.pathProducts, "utf-8")
+      );
+
+      /* buscamos el id del producto en el inventario*/
+      const prodFilter = ProdJson.find((prod) => prod.id === idProduct);
+      /* buscamos el id del producto en el carrito */
+      const carritoProd = carritoJson[posicionCarrito].products.findIndex(
+        (producto) => producto.id === idProduct
+      );
+
+      /* si el producto existe en el inventario y en el carrito */
+      if (prodFilter && carritoProd !== -1) {
+        /* aumentamos la cantidad del producto ya existente */
+        carritoJson[posicionCarrito].products[carritoProd].cantidad++;
+
+        await fs.writeFile(this.path, JSON.stringify(carritoJson));
+      } else {
+        /* si el carrito existe pero el producto no creamos un nuevo producto */
+        const productoAdd = new ProdCarrito(prodFilter);
+
+        carritoJson[posicionCarrito].products.push(productoAdd);
+        await fs.writeFile(this.path, JSON.stringify(carritoJson));
+      }
+    } else {
+      console.log("carrito no encontrado");
+    }
+  }
+}
+
+class Carrito {
+  constructor(Id, products) {
+    this.id = Carrito.IncrementarID();
+    this.products = [];
+  }
+
+  static IncrementarID() {
+    if (this.idIncrement) {
+      this.idIncrement++;
+    } else {
+      this.idIncrement = 1;
+    }
+
+    return this.idIncrement;
+  }
+}
+
+class ProdCarrito {
+  constructor(id) {
+    this.id = id;
+    this.cantidad = 1;
+  }
+
+  /* static incrementarCantidad() {
+    if (this.incrementar) {
+      this.incrementar++;
+    } else {
+      this.incrementar = 1;
+    }
+    return this.incrementar;
+  } */
+}
+
 const producto1 = new Product("Arroz", "Rico", 300, "AA123LE", 20, []);
 const producto2 = new Product("Lentejas", "Ricas", 300, "LL123LE", 20, []);
 const producto3 = new Product("Garbanzos", "Rico", 300, "GG123LE", 20, []);
+const carrito1 = new Carrito([producto1, producto2]);
+const carrito2 = new Carrito([producto3, producto1]);
 
 const productManager = new ProductManager();
+const carritoManager = new CarritoManager();
 
 const manageProducts = async () => {
+  /* FUNCIONES DEL PRODUCTO */
   await productManager.addProduct(producto1);
   await productManager.addProduct(producto2);
   await productManager.addProduct(producto3);
@@ -114,7 +222,13 @@ const manageProducts = async () => {
   await productManager.uptadeProduct(1, { title: "pan" });
   await productManager.deleteProduct(1);
   await productManager.getProducts();
+  /* FUNCIONES DEL CARRITO */
+
+  await carritoManager.AddCarrito(carrito1);
+  await carritoManager.AddCarrito(carrito2);
 };
-/* 
-manageProducts(); */
+
+manageProducts();
 console.log("hola");
+
+export { ProductManager, CarritoManager };
