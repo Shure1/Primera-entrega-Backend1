@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { ProductManager, CarritoManager } from "../main";
+import { ProductManager } from "./main.js";
 
 const prodsRouter = Router();
 const ProductManagerServer = new ProductManager();
@@ -21,11 +21,12 @@ prodsRouter.get("/", async (req, res) => {
 
 prodsRouter.get("/:id", async (req, res) => {
   const { id } = req.params;
-  const productos = await ProductManagerServer.getProductById(id);
-  const prod = productos.find((prod) => prod.id === parseInt(id));
+  const productos = await ProductManagerServer.getProductById(parseInt(id));
+  res.status(200).send(productos);
+  /* const prod = productos.find((prod) => prod.id === parseInt(id));
   prod
-    ? res.status(200).send(prod)
-    : res.status(404).send("producto no encontrado");
+    ? res.status(200).send(productos)
+    : res.status(404).send("producto no encontrado"); */
 });
 
 prodsRouter.post("/", async (req, res) => {
@@ -68,30 +69,4 @@ prodsRouter.delete("/:id", async (req, res) => {
   }
 });
 
-prodsRouter.post("/carrito", async (req, res) => {
-  const add = await CarritoManager.AddCarrito(req.body);
-  add && res.status(200).send("producto creado");
-});
-
-prodsRouter.get("/carrito/:id", async (req, res) => {
-  const { id } = req.params;
-  const carrito = await CarritoManager.getCarrito(id);
-  const carr = carrito.find((carr) => carr.id === parseInt(id));
-  carr
-    ? res.status(200).send(carr)
-    : res.status(404).send("producto no encontrado");
-});
-
-prodsRouter.post("/carrito/:idc/producto/idp", async (req, res) => {
-  const { idc, idp } = req.body;
-
-  const prodAdd = await CarritoManager.addProduct(idp, idc);
-  try {
-    prodAdd
-      ? res.status(200).send(prodAdd)
-      : res.status(404).send("producto no encontrado");
-  } catch (error) {
-    console.log("no se pudo ingresar el producto: ", error);
-  }
-});
 export default prodsRouter;

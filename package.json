@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
-    "dev": "nodemon main.js"
+    "dev": "nodemon ./src/app.js"
   },
   "keywords": [],
   "author": "",

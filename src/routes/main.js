@@ -16,22 +16,26 @@ class ProductManager {
       prodsJson.push(product);
       /* pasamos de objeto a texto plano (stringify) */
       await fs.writeFile(this.path, JSON.stringify(prodsJson));
+      return prodsJson;
     }
   }
 
   async getProducts() {
     const products = JSON.parse(await fs.readFile(this.path, "utf-8"));
     console.log(products);
+    return products;
   }
 
   async getProductById(id) {
     const prodsJson = JSON.parse(await fs.readFile(this.path, "utf-8"));
-    const prod = prodsJson.find((prod) => prod.id === id);
+    const prod = prodsJson.find((prod) => prod.id === parseInt(id));
 
     if (prod) {
       console.log(prod);
+      return [prod];
     } else {
       console.log("Producto no encontrado");
+      return [];
     }
   }
 
@@ -228,7 +232,7 @@ const manageProducts = async () => {
   await carritoManager.AddCarrito(carrito2);
 };
 
-manageProducts();
+/* manageProducts(); */
 console.log("hola");
 
 export { ProductManager, CarritoManager };

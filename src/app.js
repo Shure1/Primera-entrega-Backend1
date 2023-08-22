@@ -1,56 +1,31 @@
-import { promises as fs } from "fs";
 import express from "express";
-import ProductManager from "./main";
 
-const ProductManagerServer = new ProductManager();
+//Modulos de rutas
+import prodsRouter from "./routes/products.routes.js";
+import CarritoRouter from "./routes/carrito.routes.js";
 
-const products = async () => {
-  try {
-    const prodsJson = JSON.parse(
-      await fs.readFile("./productos.json", "utf-8")
-    );
+//verificador de rutas del pc
+import { __dirname } from "./path.js";
+//con path concatenamos dos rutas independientemente de la direccion de las barras del directorio
+import path from "path";
 
-    return prodsJson;
-  } catch (error) {
-    console.log("error en consultar", error);
-  }
-};
-
-/* console.log(productos); */
-
+//Puerto del server
 const PORT = 4000;
 
+//iniciamos el server
 const app = express();
-app.use(express.json());
 
-app.get("/", (req, res) => {
-  res.send("Hola, buenos dias");
-});
+//Middlewares
+app.use(express.json()); //para que podamos trabajar en json
+app.use(express.urlencoded({ extended: true })); //para que podamos trabajar con querys largas
 
-app.get("/products", async (req, res) => {
-  const { limit } = req.query;
-  const productos = await ProductManagerServer.getProducts();
-  console.log(limit);
-  if (limit) {
-    const filterProducts = productos.slice(0, parseInt(limit));
-    /* const filteredProducts = productos.filter((prod) => prod.title === title); */
-    console.log(filterProducts);
+//rutas
+app.use("/api/products", prodsRouter);
+app.use("api/carrito", CarritoRouter);
+app.use("/static", express.static(path.join(__dirname, "/public"))); //me evito el problema de la ruta en diferentes sist operativos u otros pc
 
-    res.status(200).send(filterProducts);
-  } else {
-    res.status(200).send(productos);
-  }
-});
-
-app.get("/products/:id", async (req, res) => {
-  const { id } = req.params;
-  const productos = await ProductManagerServer.getProductById(id);
-  const prod = productos.find((prod) => prod.id === parseInt(id));
-  prod
-    ? res.status(200).send(prod)
-    : res.status(404).send("producto no encontrado");
-});
+console.log(__dirname);
 
 app.listen(PORT, () => {
-  console.log(`Server on port ${PORT}`);
+  console.log(`server on port ${PORT}`);
 });
